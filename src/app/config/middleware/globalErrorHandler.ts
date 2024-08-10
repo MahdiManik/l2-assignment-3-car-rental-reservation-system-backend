@@ -39,7 +39,6 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     errorSources = simplifiedError?.errorSources;
   } else if (err?.code === 11000) {
     const simplifiedError = handleDuplicateError(err);
-    console.log(simplifiedError);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSources;
@@ -72,14 +71,3 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
 };
 
 export default globalErrorHandler;
-
-//pattern
-/*
-success
-message
-errorSources:[
-  path:'',
-  message:''
-]
-stack
-*/
