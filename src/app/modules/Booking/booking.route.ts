@@ -15,6 +15,7 @@ route.post(
 );
 
 route.get('/', auth(userRole.admin), bookingController.getAllBooking);
+
 route.get(
   '/my-bookings',
   auth(userRole.user),

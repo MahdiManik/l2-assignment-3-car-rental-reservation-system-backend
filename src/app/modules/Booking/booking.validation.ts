@@ -19,9 +19,7 @@ const createBookingValidationSchema = z.object({
       .optional()
       .nullable()
       .default(null),
-    user: z.string(),
-    car: z.string(),
-    totalCost: z.number().default(0).optional(),
+    carId: z.string(),
   }),
 });
 

@@ -1,3 +1,5 @@
+import { Model } from 'mongoose';
+
 export type TUser = {
   name: string;
   email: string;
@@ -11,3 +13,7 @@ export type TLogin = {
   email: string;
   password: string;
 };
+
+export interface UserModel extends Model<TUser> {
+  isUserExist(email: string): Promise<TUser | null>;
+}

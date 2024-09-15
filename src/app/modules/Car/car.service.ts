@@ -56,7 +56,7 @@ const returnCarFromDB = async (payload: TCarReturn) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Booking not Exist!');
   }
 
-  const bookingCar = await Car.findById(isBookingExist.car);
+  const bookingCar = await Car.findById(isBookingExist.carId);
   if (!bookingCar) {
     throw new AppError(httpStatus.NOT_FOUND, 'Car not Exist!');
   }

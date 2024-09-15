@@ -8,7 +8,10 @@ import AppError from '../../errors/AppError';
 import { Bookings } from './booking.model';
 import { Users } from '../users/user.model';
 
-const createABookingIntoDB = async (payload: TCarBooking, userEmail: string) => {
+const createABookingIntoDB = async (
+  payload: TCarBooking,
+  userEmail: string,
+) => {
   const { carId, ...others } = payload;
 
   const isCarExist = await Car.findById(carId);
@@ -45,7 +48,6 @@ const createABookingIntoDB = async (payload: TCarBooking, userEmail: string) => 
   }
 
   const user = await Users.findOne({ email: userEmail });
-
   const session = await mongoose.startSession();
 
   try {
@@ -62,7 +64,7 @@ const createABookingIntoDB = async (payload: TCarBooking, userEmail: string) => 
     const result = await Bookings.create(
       [
         {
-          car: carStatusUpdate,
+          carId: carStatusUpdate,
           ...others,
           user: user,
         },
@@ -83,7 +85,6 @@ const createABookingIntoDB = async (payload: TCarBooking, userEmail: string) => 
 
 const getAllBookingFromDB = async (req: Request) => {
   const queryObj: TQuery = {};
-
   if (req.query.carId) {
     queryObj['car'] = new Types.ObjectId(req.query.carId as string);
   }
