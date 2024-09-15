@@ -5,15 +5,18 @@ export type TBooking = {
   startTime: string;
   endTime: string | null;
   user: Types.ObjectId;
-  carId: Types.ObjectId;
+  car: Types.ObjectId;
   totalCost: number;
+  passport: string;
+  license: string;
+  address: string;
+  status: string;
 };
 
 export type TCarBooking = {
-  carId: Types.ObjectId;
+  carId: string;
   date: string;
   startTime: string;
-  endTime: string | null;
 };
 
 export type TQuery = {

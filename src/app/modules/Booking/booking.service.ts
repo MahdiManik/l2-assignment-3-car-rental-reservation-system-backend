@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import { Request } from 'express';
-import mongoose, { Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { TCarBooking, TQuery } from './booking.interface';
 import { Car } from '../Car/car.model';
 import AppError from '../../errors/AppError';
@@ -19,7 +19,7 @@ const createABookingIntoDB = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Car does not exist!');
   }
 
-  if (isCarExist.status === 'unavailable') {
+  if (isCarExist.status !== 'available') {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       'Car is not available at this time!!',
@@ -48,52 +48,42 @@ const createABookingIntoDB = async (
   }
 
   const user = await Users.findOne({ email: userEmail });
-  const session = await mongoose.startSession();
+  const findBooking = await Bookings.findOne({ date: payload.date }).sort({
+    date: -1,
+  });
 
-  try {
-    session.startTransaction();
-
-    const carStatusUpdate = await Car.findByIdAndUpdate(
-      carId,
-      { status: 'unavailable' },
-      {
-        new: true,
-        session,
-      },
-    );
-    const result = await Bookings.create(
-      [
-        {
-          carId: carStatusUpdate,
-          ...others,
-          user: user,
-        },
-      ],
-      { session },
-    );
-
-    await session.commitTransaction();
-    await session.endSession();
-
-    return result;
-  } catch (err: any) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw new Error(err);
+  if (payload.date === findBooking?.date) {
+    if (user?.email === userEmail) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You already booked at this date!',
+      );
+    }
   }
+
+  const result = await Bookings.create({
+    car: carId,
+    ...others,
+    user: user,
+  });
+
+  return result;
 };
 
 const getAllBookingFromDB = async (req: Request) => {
   const queryObj: TQuery = {};
+
   if (req.query.carId) {
     queryObj['car'] = new Types.ObjectId(req.query.carId as string);
   }
-
   if (req.query.date) {
     queryObj.date = req.query.date as string;
   }
 
-  const result = await Bookings.find(queryObj).populate('user').populate('car');
+  const result = await Bookings.find(queryObj)
+    .populate('user')
+    .populate('car')
+    .sort({ createdAt: 'desc' });
 
   return result;
 };
@@ -102,7 +92,8 @@ const getBookingByEmailFromDB = async (email: string) => {
   const user = await Users.findOne({ email });
   const result = await Bookings.find({ user: new Types.ObjectId(user?._id) })
     .populate('user')
-    .populate('car');
+    .populate('car')
+    .sort({ createdAt: 'desc' });
   return result;
 };
 
